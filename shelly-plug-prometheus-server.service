@@ -1,0 +1,16 @@
+[Unit]
+Description=Prometheus Shelly Plug Exporter
+Wants=basic.target
+After=basic.target network.target
+
+[Service]
+User=pi
+Group=pi
+ExecStart=/home/bin/python3 /usr/local/bin/shelly-plug-prometheus-server.py --shelly_address shelly-plug-1 --shelly_credentials_file /etc/shelly-credentials.yml
+
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
