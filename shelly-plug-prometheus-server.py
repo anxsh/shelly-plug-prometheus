@@ -3,7 +3,6 @@
 
 import argparse
 import requests
-import yaml
 from flask import Flask, Response
 
 app = Flask(__name__)
@@ -15,15 +14,20 @@ parser.add_argument('--shelly_address',
                     required=True,
                     help="IP or host address of the Shelly Plug")
 
-parser.add_argument('--shelly_credentials_file',
+parser.add_argument('--shelly_user',
                     type=str,
-                    required=True,
-                    help="yaml file containing credentials for the Shelly Plug")
+                    help="user credentials for the Shelly Plug",
+                    default='admin')
+
+parser.add_argument('--shelly_pass',
+                    type=str,
+                    help="pass credentials for the Shelly Plug",
+                    default='admin')
 
 parser.add_argument('--port',
                     type=int,
                     help = "listen port for this server",
-                    default = '9440')
+                    default='9440')
 
 def start_server(port):
     app.run(host='0.0.0.0', port=port, debug=False)
@@ -32,11 +36,9 @@ def start_server(port):
 def main():
     args = parser.parse_args()
 
-    shelly_credentials = yaml.load(open(args.shelly_credentials_file))
-    
     app.config['shelly_address'] = args.shelly_address
-    app.config['shelly_user'] = shelly_credentials['user']
-    app.config['shelly_pass'] = shelly_credentials['pass']
+    app.config['shelly_user'] = args.shelly_user
+    app.config['shelly_pass'] = args.shelly_pass
 
     print("starting server at port: %d" % args.port)
     start_server(args.port)
