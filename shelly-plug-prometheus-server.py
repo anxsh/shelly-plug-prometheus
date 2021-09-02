@@ -3,7 +3,7 @@
 
 import argparse
 import requests
-from flask import Flask, Response
+from flask import Flask, Response, request
 
 app = Flask(__name__)
 
@@ -63,7 +63,7 @@ def metrics():
                           '# TYPE {metric} gauge',
                           '{metric} {power}'])
     return Response(response.format(metric='shelly_plug_power',
-                                    power=get_shelly_power_reading(shelly_address),
+                                    power=get_shelly_power_reading(shelly_address)),
                                     mimetype='text/plain')
 
 if __name__ == '__main__':
