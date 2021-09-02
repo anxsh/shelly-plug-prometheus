@@ -9,11 +9,6 @@ app = Flask(__name__)
 
 parser = argparse.ArgumentParser(description='Web server that publishes the output of Shelly Plug power for Prometheus')
 
-parser.add_argument('--shelly_address',
-                    type=str,
-                    required=True,
-                    help="IP or host address of the Shelly Plug")
-
 parser.add_argument('--shelly_user',
                     type=str,
                     help="user credentials for the Shelly Plug",
@@ -36,7 +31,6 @@ def start_server(port):
 def main():
     args = parser.parse_args()
 
-    app.config['shelly_address'] = args.shelly_address
     app.config['shelly_user'] = args.shelly_user
     app.config['shelly_pass'] = args.shelly_pass
 
@@ -44,8 +38,7 @@ def main():
     start_server(args.port)
 
 
-def get_shelly_power_reading():
-    shelly_address = app.config['shelly_address']
+def get_shelly_power_reading(shelly_address):
     shelly_user = app.config['shelly_user']
     shelly_pass = app.config['shelly_pass']
 
@@ -63,10 +56,15 @@ def hello_world():
 
 @app.route("/metrics")
 def metrics():
+
+    shelly_address = request.args.get('shelly_address')
+    
     response = '\n'.join(['# HELP {metric} Instantaneous power reading (W)',
                           '# TYPE {metric} gauge',
                           '{metric} {power}'])
-    return Response(response.format(metric='shelly_plug_power', power=get_shelly_power_reading()), mimetype='text/plain')
+    return Response(response.format(metric='shelly_plug_power',
+                                    power=get_shelly_power_reading(shelly_address),
+                                    mimetype='text/plain')
 
 if __name__ == '__main__':
     main()
